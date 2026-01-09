@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Text Lab</title>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #00ff41;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            border: 2px solid #00ff41;
+            padding: 40px;
+            box-shadow: 0 0 25px rgba(0, 255, 65, 0.2);
+            text-align: center;
+            width: 80%;
+            max-width: 700px;
+            background-color: #151515;
+            border-radius: 8px;
+        }
+        h1 { margin-bottom: 20px; text-transform: uppercase; letter-spacing: 3px; font-size: 1.8em; }
+        
+        .result { 
+            font-size: 2.5em; 
+            font-weight: bold; 
+            margin: 30px 0; 
+            color: #fff; 
+            text-shadow: 2px 2px 0px #004d13;
+            word-wrap: break-word; /* Ensures long names don't break layout */
+        }
+        
+        .info { color: #888; font-size: 0.9em; margin-top: 40px; border-top: 1px solid #333; padding-top: 20px; }
+        
+        /* Dashboard Grid for Links */
+        .nav-links { 
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        a { 
+            color: #00ff41; 
+            text-decoration: none; 
+            border: 1px solid #00ff41; 
+            padding: 10px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+        
+        a:hover { 
+            background-color: #00ff41; 
+            color: #000; 
+            box-shadow: 0 0 10px #00ff41;
+            cursor: pointer;
+        }
+        
+        .tag { background: #333; color: #fff; padding: 5px 12px; border-radius: 15px; font-size: 0.7em; letter-spacing: 1px; display: inline-block;}
+        .error-msg { color: #ff4d4d; font-size: 1.2em; font-weight: bold; }
+
+        /* Responsive tweak for mobile */
+        @media (max-width: 600px) {
+            .nav-links { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ title }}</h1>
+        
+        {% if error %}
+            <p class="error-msg">⚠ {{ error }}</p>
+            <p>Please check the URL or click a function below.</p>
+        {% else %}
+            <p class="tag">{{ function_name }}</p>
+            <div class="result">{{ output }}</div>
+            
+            {% if extra_info %}
+                <p style="color: #aaa; font-style: italic;">{{ extra_info }}</p>
+            {% endif %}
+        {% endif %}
+
+        <div class="info">
+            <p>SELECT A FUNCTION:</p>
+            <div class="nav-links">
+                <a href="/?name=FlaskUser">Uppercase</a>
+                <a href="/reverse?name=FlaskUser">Reverse</a>
+                <a href="/spy?name=FlaskUser">Spy ID</a>
+                <a href="/hacker?name=FlaskUser">Hacker</a>
+                <a href="/vapor?name=FlaskUser">Vaporwave</a>
+                <a href="/math?name=FlaskUser">Ascii Math</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
