@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regex Clone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Regex Clone</h1>
+        <p class="subtitle">A simple tool to test regular expressions</p>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="regex">Regular Expression</label>
+                <input type="text" id="regex" name="regex" 
+                       placeholder="e.g. \w+" 
+                       value="{{ regex }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="test_string">Test String</label>
+                <textarea id="test_string" name="test_string" rows="5" 
+                          placeholder="Insert your test string here..." required>{{ test_string }}</textarea>
+            </div>
+
+            <button type="submit">Test Regex</button>
+        </form>
+
+        {% if error %}
+            <div class="error-box">
+                <strong>Error:</strong> {{ error }}
+            </div>
+        {% endif %}
+
+        {% if matches or (regex and test_string and not error) %}
+            <div class="results-section">
+                <h2>Match Information</h2>
+                <p>Found <strong>{{ match_count }}</strong> matches.</p>
+                
+                {% if matches %}
+                    <ul class="match-list">
+                        {% for match in matches %}
+                            <li>
+                                <span class="match-label">Match {{ loop.index }}:</span>
+                                <span class="match-content">"{{ match }}"</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="no-matches">No matches found.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
