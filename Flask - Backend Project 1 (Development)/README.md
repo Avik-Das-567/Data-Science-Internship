@@ -5,7 +5,7 @@
 
 A simple web application built with **Flask** that clones the core functionality of [regex101.com](https://regex101.com). This tool allows users to input a text string and a regular expression to identify and display all matching patterns.
 
-## Features
+## Features:
 
 - **Regex Testing:** Input a regular expression and a test string to find matches.
 
