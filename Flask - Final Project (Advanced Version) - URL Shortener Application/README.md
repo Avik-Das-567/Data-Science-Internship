@@ -47,7 +47,7 @@ Flask-Project/
   ```
   **Note:** The database (`instance/vault.db`) will be automatically created the first time you run the application.
 
-  ---
+---
 
 ## App Screenshots
 
@@ -63,4 +63,4 @@ Flask-Project/
 - ### "Recent Links" Page:
 <img width="1919" height="1035" alt="Shorten URL Page - 2" src="https://github.com/user-attachments/assets/1dbc9ab9-ced5-43ef-90ac-3c0d864a4f27" />
 
-  ---
+---
