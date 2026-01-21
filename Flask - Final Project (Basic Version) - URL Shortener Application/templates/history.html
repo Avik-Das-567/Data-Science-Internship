@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card shadow border-0 rounded-4">
+    <div class="card-header bg-white py-3">
+        <h4 class="mb-0 fw-bold text-primary">📜 URL History</h4>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Original URL</th>
+                        <th>Shortened URL</th>
+                        <th class="text-center">Visits</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for link in links %}
+                    <tr>
+                        <td class="ps-4 text-truncate" style="max-width: 300px;" title="{{ link.original_url }}">
+                            <a href="{{ link.original_url }}" target="_blank" class="text-decoration-none text-secondary">
+                                {{ link.original_url }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ host_url }}{{ link.short_code }}" target="_blank" class="fw-bold text-primary text-decoration-none">
+                                {{ host_url }}{{ link.short_code }}
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-secondary rounded-pill">{{ link.visit_count }}</span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center py-4 text-muted">No URLs shortened yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
