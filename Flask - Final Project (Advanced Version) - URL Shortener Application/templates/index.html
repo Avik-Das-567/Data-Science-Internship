@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-lg border-0 rounded-4 mb-5">
+            <div class="card-body p-5 text-center">
+                <h2 class="mb-4 fw-bold text-dark">Shorten Your Link</h2>
+                
+                <form method="POST" action="/">
+                    <div class="mb-3">
+                        <input type="url" name="original_url" class="form-control form-control-lg bg-light" placeholder="https://example.com/very-long-url" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg shadow-sm">Shorten URL</button>
+                </form>
+
+                {% if short_url %}
+                <div class="mt-4 p-3 bg-blue-light rounded border border-primary border-opacity-25">
+                    <div class="input-group">
+                        <input type="text" id="shortInput" class="form-control text-center fw-bold" value="{{ short_url }}" readonly>
+                        <button class="btn btn-dark" onclick="copyLink()">Copy</button>
+                    </div>
+                    <small id="copyMsg" class="text-success mt-2 d-block" style="opacity:0;">Copied!</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if history %}
+        <h5 class="fw-bold text-secondary mb-3">Your Recent Links</h5>
+        <div class="card border-0 shadow-sm">
+            <ul class="list-group list-group-flush">
+                {% for link in history %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="text-truncate me-3" style="max-width: 60%;">
+                        <small class="text-muted d-block">{{ link.original_url }}</small>
+                        <a href="{{ request.host_url }}{{ link.short_code }}" target="_blank" class="fw-bold text-decoration-none">{{ request.host_url }}{{ link.short_code }}</a>
+                    </div>
+                    <span class="badge bg-secondary rounded-pill">{{ link.visit_count }} clicks</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function copyLink() {
+        var copyText = document.getElementById("shortInput");
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        var msg = document.getElementById("copyMsg");
+        msg.style.opacity = "1";
+        setTimeout(() => { msg.style.opacity = "0"; }, 2000);
+    }
+</script>
+{% endblock %}
