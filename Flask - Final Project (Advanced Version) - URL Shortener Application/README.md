@@ -5,8 +5,8 @@
 ```
 Flask-Project/
 │
-├── app.py                # Main controller (Now includes Login/Signup logic)
-├── models.py             # Database models (Updated with 'User' table)
+├── app.py                # Application entry point & Routes
+├── models.py             # Database models
 ├── extensions.py         # Database initialization (db = SQLAlchemy)
 │
 ├── instance/
