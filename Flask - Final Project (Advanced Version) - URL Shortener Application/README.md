@@ -1,5 +1,5 @@
 # URL Shortener Application - Advanced Version
-A secure, full-stack web application designed to shorten URLs, track click analytics, and manage personal link history. This advanced version introduces **User Authentication** and **Role-Based Access**, ensuring that link data is persistent, private, and secure.
+A secure, full-stack web application designed to shorten URLs, track click analytics, and manage personal link history. This advanced version introduces **User Authentication** and **Session-Based Access Control**, ensuring that link data is persistent, private, and secure.
 
 ## Tech Stack
 
