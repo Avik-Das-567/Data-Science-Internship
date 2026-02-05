@@ -154,6 +154,10 @@ streamlit run app.py
 
 ![MLflow experiments](https://github.com/Avik-Das-567/Data-Science-Internship/blob/main/MLOps%20-%20Using%20MLflow%20for%20Experiment%20Tracking%20and%20Model%20Management/MLflow%20Dashboard%20Screenshots/MLFlow_Experiments.png)
 
+- ### Metric Plots (F1 Score) :
+
+![F1 Score](https://github.com/Avik-Das-567/Data-Science-Internship/blob/main/MLOps%20-%20Using%20MLflow%20for%20Experiment%20Tracking%20and%20Model%20Management/MLflow%20Dashboard%20Screenshots/metric_plot.png)
+
 - ### Registered Model - FlipkartSentimentModel :
 
 ![Registered Model](https://github.com/Avik-Das-567/Data-Science-Internship/blob/main/MLOps%20-%20Using%20MLflow%20for%20Experiment%20Tracking%20and%20Model%20Management/MLflow%20Dashboard%20Screenshots/Registered_Models.png)
@@ -161,9 +165,5 @@ streamlit run app.py
 - ### Registered Model Version & Tags :
 
 ![Registered Model Version](https://github.com/Avik-Das-567/Data-Science-Internship/blob/main/MLOps%20-%20Using%20MLflow%20for%20Experiment%20Tracking%20and%20Model%20Management/MLflow%20Dashboard%20Screenshots/Model_Version_3.png)
-
-- ### Metric Plots (F1 Score) :
-
-![F1 Score](https://github.com/Avik-Das-567/Data-Science-Internship/blob/main/MLOps%20-%20Using%20MLflow%20for%20Experiment%20Tracking%20and%20Model%20Management/MLflow%20Dashboard%20Screenshots/metric_plot.png)
 
 ---
