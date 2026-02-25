@@ -16,40 +16,6 @@ The project covers the end-to-end ML lifecycle:
 
 ---
 
-## Objective
-The main objective of this project is to:
-- Learn and apply MLflow for tracking ML experiments
-- Log parameters, metrics, models, and artifacts
-- Compare multiple model runs
-- Register and manage models with versioning and tags
-- Ensure reproducibility of ML experiments
-
----
-
-## Dataset
-- **Source:** Flipkart product reviews  
-- **Size:** 8,500+ reviews  
-- **Target:** Binary sentiment classification  
-  - Positive (Rating ≥ 4)
-  - Negative (Rating < 4)
-
----
-
-## Tech Stack
-
-- mlflow
-- pandas
-- numpy
-- scikit-learn
-- nltk
-- streamlit
-- joblib
-- matplotlib
-- seaborn
-- tqdm
-
----
-
 ## Project Structure
 
 ```
@@ -78,6 +44,40 @@ MLflow_Flipkart_Sentiment_Project/
 ├── requirements.txt
 └── mlflow.db    # MLflow backend store
 ```
+
+---
+
+## Objective
+The main objective of this project is to:
+- Learn and apply MLflow for tracking ML experiments
+- Log parameters, metrics, models, and artifacts
+- Compare multiple model runs
+- Register and manage models with versioning and tags
+- Ensure reproducibility of ML experiments
+
+---
+
+## Dataset
+- **Source:** Flipkart product reviews  
+- **Size:** 8,518 reviews  
+- **Target:** Binary sentiment classification  
+  - Positive (Rating ≥ 4)
+  - Negative (Rating < 4)
+
+---
+
+## Tech Stack
+
+- mlflow
+- pandas
+- numpy
+- scikit-learn
+- nltk
+- streamlit
+- joblib
+- matplotlib
+- seaborn
+- tqdm
 
 ---
 
