@@ -606,8 +606,7 @@ Streamlit Community Cloud does not provide persistent storage or a compute envir
 
 ## Author
 
-**Avik Das**  
-GitHub: [@Avik-Das-567](https://github.com/Avik-Das-567)
+**[Avik Das](https://github.com/Avik-Das-567)**
 
 ---
 
