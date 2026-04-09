@@ -1,163 +1,616 @@
 # Sentiment Analysis of Real-time Flipkart Product Reviews
 
-An end-to-end **MLOps project** that performs sentiment analysis on real Flipkart product reviews and deploys a trained model using **Streamlit Community Cloud**. The application classifies customer reviews as **Positive** or **Negative** and provides insights into customer satisfaction and pain points.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Streamlit-deployed-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white"/>
+  <img src="https://img.shields.io/badge/scikit--learn-ML-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white"/>
+  <img src="https://img.shields.io/badge/NLTK-NLP-lightgreen?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/MLOps-End--to--End-blueviolet?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge"/>
+</p>
 
-### App Link: https://sentiment-analysis-flipkart-reviews.streamlit.app
-
----
-
-## Project Overview
-
-**Objective**  
-To analyze real-time Flipkart product reviews and:
-- Classify reviews into **Positive** or **Negative** sentiment
-- Understand common pain points from negative reviews
-- Deploy a scalable, production-ready ML system using MLOps best practices
-
-**Product Analyzed**  
-  *YONEX MAVIS 350 Nylon Shuttle* (Flipkart)
+<p align="center">
+  <b>🔗 Live App: <a href="https://sentiment-analysis-flipkart-reviews.streamlit.app">sentiment-analysis-flipkart-reviews.streamlit.app</a></b>
+</p>
 
 ---
 
-## Dataset Description
+## Table of Contents
 
-- **Source**: Real-time scraped Flipkart reviews
-- **File**: `data.csv`
-- **Total Reviews**: 8,518
-
-**Key Features**
-- Reviewer Name  
-- Rating  
-- Review Title  
-- Review Text  
-- Place of Review  
-- Date of Review  
-- Up Votes / Down Votes  
-
----
-
-## Data Preprocessing
-
-- Text cleaning (lowercasing, special character & punctuation removal)
-- Stopword removal
-- Lemmatization
-- Handling missing and noisy data
-- Label creation using ratings (Positive / Negative)
+1. [Project Overview](#1-project-overview)
+2. [Repository Structure](#2-repository-structure)
+3. [Dataset Description](#3-dataset-description)
+4. [Technical Pipeline](#4-technical-pipeline)
+5. [Data Preprocessing](#5-data-preprocessing)
+6. [Feature Engineering](#6-feature-engineering)
+7. [Model Training](#7-model-training)
+8. [Model Evaluation & Results](#8-model-evaluation--results)
+9. [Model Registry & Artifact Management](#9-model-registry--artifact-management)
+10. [Inference Engine](#10-inference-engine)
+11. [Streamlit Web Application](#11-streamlit-web-application)
+12. [Configuration Reference](#12-configuration-reference)
+13. [Local Setup & Execution](#13-local-setup--execution)
+14. [Deployment](#14-deployment)
+15. [Future Scope](#15-future-scope)
 
 ---
 
-## Feature Engineering
+## 1. Project Overview
 
-Multiple text representation techniques were explored:
-- Bag of Words (BoW)
-- TF-IDF (final selected approach)
-- (Design supports future extension to Word2Vec / BERT)
+This is an **end-to-end MLOps project** that performs binary sentiment classification on real Flipkart product reviews. The system ingests raw review text, applies NLP preprocessing, vectorizes using TF-IDF, trains and compares multiple machine learning models, selects the best performer, serializes artifacts, and serves predictions through a live Streamlit web application.
+
+**Product Analyzed:** [YONEX MAVIS 350 Nylon Shuttle](https://www.flipkart.com/yonex-mavis-350-nylon-shuttle-yellow/p/itmfcjdyhnghfyey) on Flipkart
+
+**Problem Statement:** Binary sentiment classification of customer reviews — predicting whether a given review expresses a **Positive** or **Negative** sentiment — and understanding pain points from negative reviews to derive product insights.
+
+**Sentiment Labeling Logic:** Reviews with a star rating **≥ 4** are labeled **Positive (1)**; ratings **≤ 3** are labeled **Negative (0)**. This threshold is defined programmatically in `run_training.py` as:
+
+```python
+df["sentiment"] = df[RATING_COLUMN].apply(lambda x: 1 if x >= 4 else 0)
+```
+
+**Key Engineering Decisions:**
+- Modular `src/` package architecture separating each pipeline concern
+- TF-IDF with unigrams and bigrams as the final text representation strategy
+- Automated best-model selection via F1-Score and serialization via `joblib`
+- Inference-ready artifacts committed to the repository for zero-training cold starts on Streamlit Cloud
 
 ---
 
-## Model Training & Evaluation
-
-- Multiple ML models trained and compared
-- Best model selected using **F1-Score**
-- Model artifacts and metadata saved for reproducibility
-
-**Evaluation Metric**
-- F1-Score (chosen due to class imbalance)
-
----
-
-## Project Structure
+## 2. Repository Structure
 
 ```
 Sentiment_Analysis_Project/
 │
 ├── data/
-│   └── data.csv
+│   └── data.csv                    # Raw scraped Flipkart reviews (8,518 records)
 │
-├── artifacts/
-│   ├── vectorizer.pkl
-│   ├── sentiment_model.pkl
-│   └── model_metadata.json
+├── artifacts/                      # Serialized ML artifacts (auto-generated by run_training.py)
+│   ├── sentiment_model.pkl         # Best trained model (LinearSVC)
+│   ├── vectorizer.pkl              # Fitted TF-IDF vectorizer
+│   └── model_metadata.json         # Best model name and F1 score
 │
-├── src/
-│   ├── config.py
-│   ├── data_loader.py
-│   ├── preprocessing.py
-│   ├── feature_engineering.py
-│   ├── train.py
-│   ├── evaluate.py
-│   ├── model_registry.py
-│   └── inference.py
+├── src/                            # Core source package
+│   ├── config.py                   # Centralized configuration constants
+│   ├── data_loader.py              # CSV ingestion and null filtering
+│   ├── preprocessing.py            # Text cleaning and normalization
+│   ├── feature_engineering.py      # TF-IDF vectorization
+│   ├── train.py                    # Model definitions and training loop
+│   ├── evaluate.py                 # F1-Score based model evaluation
+│   ├── model_registry.py           # Best model selection and artifact persistence
+│   └── inference.py                # Prediction pipeline for serving
 │
-├── app.py
-├── requirements.txt
-├── README.md
-└── run_training.py
+├── app.py                          # Streamlit web application entry point
+├── run_training.py                 # End-to-end training pipeline orchestrator
+└── requirements.txt                # Python dependency manifest
 ```
 
 ---
 
+## 3. Dataset Description
+
+**Source:** Real-time scraped Flipkart product reviews (pre-collected by a Data Engineering team)  
+**File:** `data/data.csv`  
+**Total Records:** 8,518 reviews
+
+### 3.1 Feature Schema
+
+| Column | Type | Description |
+|---|---|---|
+| `Reviewer Name` | `str` | Name of the customer who wrote the review |
+| `Review Title` | `str` | Short headline/title of the review |
+| `Review text` | `str` | Full body of the review — **primary input feature** |
+| `Ratings` | `int` | Star rating given by reviewer (1–5) — **used to derive labels** |
+| `Place of Review` | `str` | Geographic location of the reviewer |
+| `Month` | `str` | Month when the review was posted |
+| `Up Votes` | `float` | Number of upvotes the review received |
+| `Down Votes` | `float` | Number of downvotes the review received |
+
+### 3.2 Rating & Class Distribution
+
+| Rating | Count | Sentiment Label |
+|---|---|---|
+| ⭐ 1 | 769 | Negative |
+| ⭐⭐ 2 | 308 | Negative |
+| ⭐⭐⭐ 3 | 615 | Negative |
+| ⭐⭐⭐⭐ 4 | 1,746 | Positive |
+| ⭐⭐⭐⭐⭐ 5 | 5,080 | Positive |
+
+**Derived Sentiment Distribution:**
+
+| Sentiment | Count | Proportion |
+|---|---|---|
+| Positive (rating ≥ 4) | 6,826 | ~80.1% |
+| Negative (rating ≤ 3) | 1,692 | ~19.9% |
+
+> **Note:** The dataset exhibits significant **class imbalance (~4:1 positive-to-negative ratio)**. This directly motivated the use of F1-Score over accuracy as the evaluation metric, and the use of `class_weight="balanced"` in Logistic Regression.
+
+### 3.3 Missing Value Summary
+
+| Column | Missing Count |
+|---|---|
+| `Reviewer Name` | 10 |
+| `Review Title` | 10 |
+| `Place of Review` | 50 |
+| `Up Votes` | 10 |
+| `Down Votes` | 10 |
+| `Month` | 465 |
+| `Review text` | 8 |
+| `Ratings` | 0 |
+
+Records with missing `Review text` or `Ratings` are dropped during loading, as both are essential for training. All other columns with missing values are retained as they are not used in the ML pipeline.
 
 ---
 
-## Streamlit Web Application
+## 4. Technical Pipeline
 
-The deployed web app allows users to:
-- Enter a custom product review
-- Get **real-time sentiment prediction**
-- View model information and performance (F1-score)
-
----
-
-## How to Run Locally
-
-### 1. Clone the Repository
+The full machine learning pipeline is orchestrated by `run_training.py` and follows a strict sequential structure:
 
 ```
+raw CSV
+    │
+    ▼
+[data_loader.py]  ──── load_data()
+    │  • Read CSV from DATA_PATH
+    │  • Drop rows where Review text or Ratings is null
+    ▼
+[preprocessing.py]  ── clean_text() applied per row
+    │  • Lowercase
+    │  • Regex strip non-alpha characters
+    │  • Tokenize by whitespace
+    │  • Remove NLTK English stopwords
+    │  • WordNet Lemmatization
+    ▼
+[Label Engineering]  ── in run_training.py
+    │  • Rating ≥ 4  →  1 (Positive)
+    │  • Rating ≤ 3  →  0 (Negative)
+    ▼
+[Train/Test Split]  ─── sklearn train_test_split
+    │  • test_size = 0.2  (80/20 split)
+    │  • random_state = 42
+    ▼
+[feature_engineering.py]  ── tfidf_features()
+    │  • TfidfVectorizer fit on X_train only
+    │  • max_features = 5000
+    │  • ngram_range = (1, 2)  [unigrams + bigrams]
+    │  • X_test transformed (no re-fitting — prevents data leakage)
+    ▼
+[train.py]  ──────────── train_models()
+    │  • LogisticRegression(max_iter=1000, class_weight="balanced")
+    │  • LinearSVC()
+    ▼
+[evaluate.py]  ────────── evaluate_models()
+    │  • F1-Score computed per model on X_test_vec
+    ▼
+[model_registry.py]  ──── register_best_model()
+    │  • Selects model with highest F1
+    │  • Serializes: sentiment_model.pkl, vectorizer.pkl
+    │  • Writes: model_metadata.json
+    ▼
+[inference.py]  ────────── predict_sentiment()
+    │  • Loads artifacts at module import time
+    │  • Applies clean_text() + vectorizer.transform() + model.predict()
+    ▼
+[app.py]  ─────────────── Streamlit UI
+       • Accepts user review text
+       • Returns: "Positive" or "Negative"
+       • Sidebar: model name + F1 score
+```
+
+---
+
+## 5. Data Preprocessing
+
+**Module:** `src/preprocessing.py`
+
+Each raw review string is passed through `clean_text()`, which applies the following transformations in sequence:
+
+```python
+def clean_text(text):
+    text = text.lower()                                              # Step 1: Lowercase
+    text = re.sub(r"[^a-z\s]", "", text)                           # Step 2: Remove non-alpha chars
+    tokens = text.split()                                            # Step 3: Whitespace tokenization
+    tokens = [lemmatizer.lemmatize(w) for w in tokens              # Step 4: Lemmatize
+              if w not in stop_words]                               #         & remove stopwords
+    return " ".join(tokens)
+```
+
+### Step-by-Step Breakdown
+
+| Step | Operation | Tool/Method | Effect |
+|---|---|---|---|
+| 1 | Lowercasing | Python `.lower()` | Case normalization — "Good" and "good" treated identically |
+| 2 | Character filtering | `re.sub(r"[^a-z\s]", "", text)` | Removes numbers, punctuation, special chars; retains only letters and spaces |
+| 3 | Tokenization | `str.split()` | Splits on whitespace into a list of word tokens |
+| 4 | Stopword removal | `nltk.corpus.stopwords` (English) | Removes high-frequency low-information words (e.g., "the", "is", "a") |
+| 5 | Lemmatization | `nltk.stem.WordNetLemmatizer` | Reduces tokens to their dictionary base form (e.g., "shuttles" → "shuttle") |
+
+**NLTK Resources downloaded at runtime:**
+```python
+nltk.download("stopwords")
+nltk.download("wordnet")
+```
+
+**Design choice — Lemmatization over Stemming:** Lemmatization was preferred as it produces linguistically valid root words using vocabulary and morphological analysis, whereas stemming is a crude heuristic that can produce non-words (e.g., "playing" → "play" vs "plai").
+
+---
+
+## 6. Feature Engineering
+
+**Module:** `src/feature_engineering.py`
+
+Text is converted to numerical vectors using **TF-IDF (Term Frequency–Inverse Document Frequency)** via scikit-learn's `TfidfVectorizer`:
+
+```python
+def tfidf_features(train_texts, test_texts):
+    vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 2))
+    X_train = vectorizer.fit_transform(train_texts)   # Fit only on training data
+    X_test  = vectorizer.transform(test_texts)         # Transform test (no fit)
+    return X_train, X_test, vectorizer
+```
+
+### Vectorizer Parameters
+
+| Parameter | Value | Rationale |
+|---|---|---|
+| `max_features` | 5000 | Limits vocabulary size; discards rare/noisy terms, controls dimensionality |
+| `ngram_range` | `(1, 2)` | Captures both unigrams and bigrams — phrases like "not good" or "very bad" carry critical sentiment signal that unigrams alone miss |
+| Fit strategy | `fit_transform` on train only | Strict prevention of **data leakage** — the test set is only transformed using the vocabulary learned from training |
+
+### Why TF-IDF over BoW?
+
+TF-IDF down-weights terms that appear very frequently across all documents (low discriminative value) and up-weights terms that are distinctive to specific reviews. For sentiment tasks this is valuable — words like "product" appear everywhere (low IDF), while "defective" or "excellent" are more informative (high IDF).
+
+The vectorizer object is serialized to `artifacts/vectorizer.pkl` to ensure identical transformation is applied at inference time.
+
+---
+
+## 7. Model Training
+
+**Module:** `src/train.py`
+
+Two classifiers are trained and compared:
+
+```python
+def train_models(X_train, y_train):
+    models = {
+        "LogisticRegression": LogisticRegression(max_iter=1000, class_weight="balanced"),
+        "LinearSVM": LinearSVC()
+    }
+    trained = {}
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        trained[name] = model
+    return trained
+```
+
+### Model Details
+
+**1. Logistic Regression**
+- `max_iter=1000` — increased from the default to ensure convergence on the high-dimensional TF-IDF feature space
+- `class_weight="balanced"` — automatically adjusts weights inversely proportional to class frequencies, directly compensating for the ~4:1 class imbalance in the dataset
+- Produces calibrated probability estimates; interpretable via feature coefficients
+
+**2. Linear SVM (`LinearSVC`)**
+- Optimized specifically for high-dimensional sparse text classification problems
+- Uses a linear kernel with a hinge loss objective, which is highly effective on TF-IDF feature spaces
+- Significantly faster than kernel SVMs at training and inference on large sparse matrices
+- **Selected as the best model** based on F1-Score evaluation
+
+### Train/Test Split (from `run_training.py`)
+
+```python
+X_train, X_test, y_train, y_test = train_test_split(
+    df["cleaned"], df["sentiment"],
+    test_size=0.2,       # 20% held out for evaluation
+    random_state=42      # Reproducibility seed
+)
+```
+
+| Split | Size (approx.) |
+|---|---|
+| Training set | ~6,810 reviews |
+| Test set | ~1,708 reviews |
+
+---
+
+## 8. Model Evaluation & Results
+
+**Module:** `src/evaluate.py`
+
+```python
+def evaluate_models(models, X_test, y_test):
+    scores = {}
+    for name, model in models.items():
+        preds = model.predict(X_test)
+        scores[name] = f1_score(y_test, preds)
+    return scores
+```
+
+### Why F1-Score?
+
+Given the class imbalance (~80% Positive, ~20% Negative), **accuracy is a misleading metric** — a naive classifier predicting "Positive" for every review would achieve ~80% accuracy. F1-Score is the **harmonic mean of Precision and Recall**, penalizing classifiers that sacrifice one for the other, making it the appropriate metric for imbalanced binary classification.
+
+### Results
+
+| Model | F1-Score |
+|---|---|
+| Logistic Regression | — |
+| **LinearSVC** | **0.9218** ✅ |
+
+> **LinearSVC achieved an F1-Score of 0.9218**, making it the best-performing model. It was automatically selected and persisted by the model registry.
+
+---
+
+## 9. Model Registry & Artifact Management
+
+**Module:** `src/model_registry.py`
+
+After evaluation, the best-performing model is identified, serialized, and its metadata is recorded — all automatically:
+
+```python
+def register_best_model(models, scores, vectorizer):
+    best_model_name = max(scores, key=scores.get)     # Argmax over F1 scores
+    best_model = models[best_model_name]
+
+    os.makedirs(MODEL_DIR, exist_ok=True)
+
+    joblib.dump(best_model,  f"{MODEL_DIR}/sentiment_model.pkl")
+    joblib.dump(vectorizer,  f"{MODEL_DIR}/vectorizer.pkl")
+
+    metadata = {
+        "model_name": best_model_name,
+        "f1_score": scores[best_model_name]
+    }
+    with open(f"{MODEL_DIR}/model_metadata.json", "w") as f:
+        json.dump(metadata, f, indent=4)
+
+    return best_model_name, scores[best_model_name]
+```
+
+### Artifacts Generated
+
+| File | Description |
+|---|---|
+| `artifacts/sentiment_model.pkl` | Serialized best model (`LinearSVC`) via `joblib` |
+| `artifacts/vectorizer.pkl` | Fitted `TfidfVectorizer` — must be used for all inference |
+| `artifacts/model_metadata.json` | JSON record of model name and F1 score |
+
+### `model_metadata.json` (current)
+
+```json
+{
+    "model_name": "LinearSVM",
+    "f1_score": 0.9218252564556066
+}
+```
+
+**Design note:** Committing serialized artifacts directly to the repository allows the Streamlit Cloud deployment to serve predictions **without re-training** on startup. The app is inference-only at runtime — it loads pre-built `.pkl` files and the metadata JSON.
+
+---
+
+## 10. Inference Engine
+
+**Module:** `src/inference.py`
+
+The inference module loads serialized artifacts at **module import time** (once per process), ensuring low-latency predictions on subsequent calls:
+
+```python
+model      = joblib.load("artifacts/sentiment_model.pkl")
+vectorizer = joblib.load("artifacts/vectorizer.pkl")
+
+def predict_sentiment(text):
+    cleaned    = clean_text(text)               # Apply same preprocessing as training
+    vector     = vectorizer.transform([cleaned]) # Transform using fitted vectorizer
+    prediction = model.predict(vector)[0]        # Binary prediction: 0 or 1
+    return "Positive" if prediction == 1 else "Negative"
+```
+
+### Inference Flow for a New Review
+
+```
+User input (raw string)
+    │
+    ▼ clean_text()           # Lowercase → strip non-alpha → remove stopwords → lemmatize
+    ▼ vectorizer.transform() # Map to 5000-dim TF-IDF sparse vector
+    ▼ model.predict()        # LinearSVC decision boundary → 0 or 1
+    ▼
+"Positive" or "Negative"
+```
+
+**Critical consistency requirement:** The `clean_text()` function applied at inference must be **identical** to the one used during training. Since both `run_training.py` and `inference.py` import from `src.preprocessing`, this is guaranteed structurally.
+
+---
+
+## 11. Streamlit Web Application
+
+**Entry point:** `app.py`
+
+```python
+st.set_page_config(page_title="Flipkart Sentiment Analyzer", layout="centered")
+
+review = st.text_area("Enter your review:")
+
+if st.button("Analyze Sentiment"):
+    if review.strip():
+        result = predict_sentiment(review)
+        st.success(f"Sentiment: {result}")
+    else:
+        st.warning("Please enter a review.")
+
+with open("artifacts/model_metadata.json") as f:
+    metadata = json.load(f)
+
+st.sidebar.header("Model Info")
+st.sidebar.write(f"Model: {metadata['model_name']}")
+st.sidebar.write(f"F1 Score: {metadata['f1_score']:.4f}")
+```
+
+### UI Components
+
+| Component | Type | Purpose |
+|---|---|---|
+| `st.text_area` | Input | Accepts multi-line review text from the user |
+| `st.button("Analyze Sentiment")` | Trigger | Initiates inference on click |
+| `st.success(...)` | Output | Displays the predicted sentiment label |
+| `st.warning(...)` | Validation | Alerts user if input is empty |
+| `st.sidebar` | Metadata panel | Displays active model name and F1 score read from `model_metadata.json` |
+
+**Input validation:** The app checks `review.strip()` before inference to prevent empty-string predictions from being passed to the model.
+
+**Dynamic metadata display:** The sidebar reads from `model_metadata.json` at runtime rather than hardcoding values — meaning if the model is retrained and a different model wins, the sidebar automatically reflects the updated model name and score without any code changes.
+
+**Live App:** [https://sentiment-analysis-flipkart-reviews.streamlit.app](https://sentiment-analysis-flipkart-reviews.streamlit.app)
+
+---
+
+## 12. Configuration Reference
+
+**Module:** `src/config.py`
+
+All environment-specific paths and hyperparameters are centralized here:
+
+```python
+DATA_PATH    = "data/data.csv"    # Input dataset path
+MODEL_DIR    = "artifacts"        # Output directory for serialized artifacts
+LOG_DIR      = "logs"             # Reserved for future logging
+
+TEXT_COLUMN   = "Review text"     # Column name for raw review text in CSV
+RATING_COLUMN = "Ratings"         # Column name for star ratings in CSV
+
+RANDOM_STATE = 42                 # Global reproducibility seed
+TEST_SIZE    = 0.2                # Fraction of data reserved for evaluation
+```
+
+Importing from `config.py` across all modules ensures that any path or constant change propagates to the entire codebase from a single file.
+
+---
+
+## 13. Local Setup & Execution
+
+### Prerequisites
+
+- Python 3.8 or higher
+- `pip` package manager
+- Git
+
+### Step 1 — Clone the Repository
+
+```bash
 git clone https://github.com/Avik-Das-567/Sentiment-Analysis-Flipkart-Product-Reviews.git
 cd Sentiment-Analysis-Flipkart-Product-Reviews
 ```
 
-### 2. Create Virtual Environment & Install Dependencies
+### Step 2 — Create & Activate a Virtual Environment
 
-```
+```bash
+# Create virtual environment
 python -m venv venv
+
+# Activate (Windows)
 venv\Scripts\activate
+
+# Activate (macOS/Linux)
+source venv/bin/activate
+```
+
+### Step 3 — Install Dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 3. Train the Model
+**`requirements.txt` contents:**
 
 ```
+pandas
+numpy
+scikit-learn
+nltk
+streamlit
+joblib
+matplotlib
+seaborn
+tqdm
+```
+
+### Step 4 — Run the Training Pipeline
+
+> **Skip this step** if you wish to use the pre-trained artifacts already committed to the repository.
+
+```bash
 python run_training.py
 ```
 
-### 4. Run Streamlit App
+This will:
+1. Load `data/data.csv` and drop null records
+2. Apply `clean_text()` to all reviews
+3. Derive binary sentiment labels from ratings
+4. Split data 80/20 (train/test)
+5. Fit a TF-IDF vectorizer on the training set
+6. Train Logistic Regression and LinearSVC
+7. Evaluate both on the test set using F1-Score
+8. Save the best model, vectorizer, and metadata to `artifacts/`
 
+**Expected console output:**
 ```
+Best Model: LinearSVM
+Best F1 Score: 0.9218252564556066
+```
+
+### Step 5 — Launch the Streamlit App
+
+```bash
 streamlit run app.py
 ```
 
----
-
-## Deployment
-
-- Platform: **Streamlit Community Cloud**
-
-- Deployment via GitHub repository
-
-- Artifacts committed for fast startup and inference-only runtime
+The app will be available at `http://localhost:8501` in your browser.
 
 ---
 
-## Key Highlights
+## 14. Deployment
 
-- End-to-end MLOps workflow
+**Platform:** [Streamlit Community Cloud](https://streamlit.io/cloud)
 
-- Clean modular code structure
+### How It Works
 
-- Real-world dataset
+1. The repository (including `artifacts/`) is pushed to GitHub
+2. The Streamlit app is connected to the GitHub repository via Streamlit Community Cloud
+3. On deployment, Streamlit installs packages from `requirements.txt` and runs `app.py`
+4. Since `.pkl` artifacts are committed, **no training occurs at deploy time** — the app loads pre-built models directly
+5. Any push to the connected GitHub branch **automatically triggers a redeployment**
 
-- Production-style deployment
+### Why Artifacts Are Committed to the Repository
 
-- Easily extensible to advanced NLP models (BERT, Transformers)
+Streamlit Community Cloud does not provide persistent storage or a compute environment suitable for training. Committing `sentiment_model.pkl` and `vectorizer.pkl` ensures:
+- Instant cold starts with no training overhead
+- Fully deterministic inference across all deployments
+- No dependency on external model stores or cloud storage
+
+---
+
+## 15. Future Scope
+
+| Enhancement | Description |
+|---|---|
+| **Advanced Text Embeddings** | Replace TF-IDF with Word2Vec, GloVe, or sentence-transformers for richer semantic representations |
+| **Transformer-based Models** | Fine-tune BERT or DistilBERT on the review corpus for state-of-the-art sentiment classification |
+| **Explainability** | Integrate LIME or SHAP to surface the most influential words driving each prediction |
+| **Multi-class Sentiment** | Extend beyond binary to a 5-class rating prediction task |
+| **EDA Dashboard** | Add an interactive analytics tab to `app.py` showing rating distributions, word clouds, and review trends |
+| **MLflow / DVC Integration** | Track experiments, parameters, and metrics systematically for reproducible ML research |
+| **Automated Retraining** | Set up CI/CD pipelines (GitHub Actions) to retrain and re-register the model when new data is available |
+| **REST API** | Expose the inference module as a FastAPI endpoint for integration with external systems |
+
+---
+
+## Author
+
+**Avik Das**  
+GitHub: [@Avik-Das-567](https://github.com/Avik-Das-567)
+
+---
+
+## License
+
+This project is licensed under the **MIT License** — you are free to use, modify, and distribute this project with attribution.
